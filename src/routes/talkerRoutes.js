@@ -14,11 +14,17 @@ const validateRate = require('../middlewares/validateRate');
 const STATUS_OK = 200;
 const NOT_FOUND = 404;
 const CREATED_STATUS = 201;
+const NO_CONTENT = 204;
+const SERVER_ERROR = 500;
 
 router.get('/', async (_req, res) => {
-   const talkerJSON = await readTalker();
-   if (talkerJSON.length < 1) return res.status(STATUS_OK).json([]);
-   return res.status(STATUS_OK).json(talkerJSON);
+    try {
+        const talkerJSON = await readTalker();
+        if (talkerJSON.length < 1) return res.status(STATUS_OK).json([]);
+        return res.status(STATUS_OK).json(talkerJSON);
+    } catch (error) {
+        res.status(SERVER_ERROR).send({ message: error.message });
+    }
 });
 
 router.get('/:id', async (req, res) => {
@@ -29,7 +35,7 @@ router.get('/:id', async (req, res) => {
         if (findById) return res.status(STATUS_OK).json(findById);
         return res.status(NOT_FOUND).json({ message: 'Pessoa palestrante não encontrada' });
     } catch (error) {
-        res.status(500).send({ message: error.message });
+        res.status(SERVER_ERROR).send({ message: error.message });
     }
 });
 
@@ -41,22 +47,19 @@ router.post('/',
   validateCreatedAt,
   validateRate,
  async (req, res) => {
-    const read = await readTalker();
-    const info = req.body;
-    const { name, age, talk } = info;
-    const { watchedAt, rate } = talk;
-    const obj = {
-        id: read[read.length - 1].id + 1,
-        name,
-        age,
-        talk: {
-            watchedAt,
-            rate,
-        },
-    };
-    read.push(obj);
-    write(read);
-    return res.status(CREATED_STATUS).json(obj);
+    try {
+        const read = await readTalker();
+        const info = req.body;
+        const obj = {
+            id: read[read.length - 1].id + 1,
+           ...info,
+        };
+        read.push(obj);
+        write(read);
+        return res.status(CREATED_STATUS).json(obj);
+    } catch (error) {
+        res.status(SERVER_ERROR).send({ message: error.message });
+    }
 });
 
 router.put('/:id',
@@ -74,14 +77,26 @@ async (req, res) => {
 
     const index = talker.findIndex((element) => element.id === Number(id));
     if (index === -1) {
-        return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+        return res.status(NOT_FOUND).json({ message: 'Pessoa palestrante não encontrada' });
     }
     talker[index] = { id: Number(id), ...info };
     write(talker);
     return res.status(STATUS_OK).json(talker[index]);
  } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.status(SERVER_ERROR).send({ message: error.message });
  }
+});
+
+router.delete('/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const talker = await readTalker();
+        const filtered = talker.filter((talk) => talk.id !== Number(id));
+        await write(filtered);
+        return res.status(NO_CONTENT).end();
+    } catch (error) {
+        res.status(SERVER_ERROR).send({ message: error.message });
+    } 
 });
 
 module.exports = router;

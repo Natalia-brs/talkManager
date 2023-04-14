@@ -6,6 +6,7 @@ const validateEmail = (req, res, next) => {
     if (email === undefined) {
         return res.status(BAD_REQUEST).json({ message: 'O campo "email" é obrigatório' });
     }
+    
     if (!email.match(regexEmail)) {
        return res.status(BAD_REQUEST)
        .json({ message: 'O "email" deve ter o formato "email@email.com"' });
