@@ -3,9 +3,17 @@ const express = require('express');
 const router = express.Router();
 
 const readTalker = require('../utils/readFile');
+const write = require('../utils/writeFile');
+const auth = require('../middlewares/auth');
+const validateName = require('../middlewares/validateName');
+const validateAge = require('../middlewares/validateAge');
+const validateCreatedAt = require('../middlewares/validateCreatedAt');
+const validateTalk = require('../middlewares/validateTalk');
+const validateRate = require('../middlewares/validateRate');
 
 const STATUS_OK = 200;
 const NOT_FOUND = 404;
+const CREATED_STATUS = 201;
 
 router.get('/', async (_req, res) => {
    const talkerJSON = await readTalker();
@@ -23,6 +31,32 @@ router.get('/:id', async (req, res) => {
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
+});
+
+router.post('/', 
+  auth,
+  validateName,
+  validateAge,
+  validateTalk,
+  validateCreatedAt,
+  validateRate,
+ async (req, res) => {
+    const read = await readTalker();
+    const info = req.body;
+    const { name, age, talk } = info;
+    const { watchedAt, rate } = talk;
+    const obj = {
+        id: read[read.length - 1].id + 1,
+        name,
+        age,
+        talk: {
+            watchedAt,
+            rate,
+        },
+    };
+    read.push(obj);
+    write(read);
+    return res.status(CREATED_STATUS).json(obj);
 });
 
 module.exports = router;
