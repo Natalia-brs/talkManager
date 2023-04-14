@@ -33,7 +33,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.post('/', 
+router.post('/',
   auth,
   validateName,
   validateAge,
@@ -57,6 +57,31 @@ router.post('/',
     read.push(obj);
     write(read);
     return res.status(CREATED_STATUS).json(obj);
+});
+
+router.put('/:id',
+auth,
+validateName,
+validateAge,
+validateTalk,
+validateCreatedAt,
+validateRate,
+async (req, res) => {
+ try {
+    const { id } = req.params;
+    const info = req.body;
+    const talker = await readTalker();
+
+    const index = talker.findIndex((element) => element.id === Number(id));
+    if (index === -1) {
+        return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+    }
+    talker[index] = { id: Number(id), ...info };
+    write(talker);
+    return res.status(STATUS_OK).json(talker[index]);
+ } catch (error) {
+    res.status(500).send({ message: error.message });
+ }
 });
 
 module.exports = router;
