@@ -1,10 +1,10 @@
-# :construction: README em construção ! :construction:
-<!-- Olá, Tryber!
-Esse é apenas um arquivo inicial para o README do seu projeto.
-É essencial que você preencha esse documento por conta própria, ok?
-Não deixe de usar nossas dicas de escrita de README de projetos, e deixe sua criatividade brilhar!
-:warning: IMPORTANTE: você precisa deixar nítido:
-- quais arquivos/pastas foram desenvolvidos por você; 
-- quais arquivos/pastas foram desenvolvidos por outra pessoa estudante;
-- quais arquivos/pastas foram desenvolvidos pela Trybe.
--->
+# Talk Manager
+
+Projeto de API que usa funções nativas do node para controlar o fluxo de palestrantes para um evento realizando um CRUD, com as rotas feitas utlizando express, nele os palestrantes são salvos em arquivos de texto e retornados para o usuario por meio de endpoints. Tambem foi utilizado middlewares para algumas validações. 
+
+# Tecnologias Utilizadas
+- Docker
+- Express
+- NodeJS
+
+
